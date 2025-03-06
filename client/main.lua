@@ -8,7 +8,17 @@ local function toggleLock(vehicle)
     if vehicleConfig.noLock or vehicleConfig.shared then return end
     if GetIsVehicleAccessible(vehicle) then
 
+        local hash = joaat('p_car_keys_01')
+        lib.requestModel(hash)
+        local keyProp = CreateObject(hash, GetEntityCoords(cache.ped), false, false, false)
+        SetEntityCollision(keyProp, false, false)
+        AttachEntityToEntity(keyProp, cache.ped, GetPedBoneIndex(cache.ped, 57005), 0.10, 0.02, 0, 48.10, 23.14, 24.14, true, true, false, true, 1, true)
         lib.playAnim(cache.ped, 'anim@mp_player_intmenu@key_fob@', 'fob_click', 3.0, 3.0, -1, 49)
+        SetModelAsNoLongerNeeded(keyProp)
+        SetTimeout(1300, function()
+            ClearPedTasks(cache.ped)
+            DeleteEntity(keyProp)
+        end)
 
         --- if the statebag is out of sync, rely on it as the source of truth and sync the client to the statebag's value
         local stateBagValue = Entity(vehicle).state.doorslockstate
